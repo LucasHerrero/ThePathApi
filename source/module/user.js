@@ -12,24 +12,24 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true
   },
-  user_password: {
+  password: {
     type: Sequelize.DataTypes.STRING,
     allowNull: false
   },
-  user_email: {
+  email: {
     type: Sequelize.DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  user_birthday: {
+  birthday: {
     type: Sequelize.DataTypes.DATE,
     allowNull: true
   },
-  user_height: {
+  height: {
     type: Sequelize.DataTypes.FLOAT,
     allowNull: true
   },
-  user_kg: {
+  kg: {
     type: Sequelize.DataTypes.FLOAT,
     allowNull: true
   },

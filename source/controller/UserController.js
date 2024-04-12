@@ -7,6 +7,8 @@ require("dotenv").config();
 const secret = process.env.JWT_SECRET;
 
 router.post("/register", async (req, res) => {
+  console.log(req.body);
+  
   try {
     // Hash the password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
