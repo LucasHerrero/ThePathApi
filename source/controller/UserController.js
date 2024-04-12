@@ -43,4 +43,33 @@ router.get("/users", async (req, res) => {
   }
 });
 
+router.post("/login", async (req, res) => {
+  try {
+    // Find the user by email
+    const user = await User.findOne({ where: { email: req.body.email } });
+
+    // If the user was not found, send an error
+    if (!user) {
+      return res.status(400).send("The email does not exist");
+    }
+
+    // Check if the provided password matches the hashed password in the database
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
+
+    // If the password is not valid, send an error
+    if (!validPassword) {
+      return res.status(400).send("Invalid password");
+    }
+
+    // If the email and password are valid, create a JWT token
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "1h" });
+
+    // Send the token to the client
+    res.json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error logging in");
+  }
+});
+
 module.exports = router;
