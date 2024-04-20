@@ -13,4 +13,5 @@ async function dbConnectMySql() {
   }
 }
 
+
 module.exports = { dbConnectMySql, sequelize };
