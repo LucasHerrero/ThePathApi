@@ -4,15 +4,16 @@ const cors = require('cors');
 const { dbConnectMySql } = require('./source/mysql.js');
 const userController = require('./source/controller/UserController.js');
 const ejercicioController = require('./source/controller/EjerciciosController.js'); // Importa el nuevo controlador
+const rutinaController = require('./source/controller/RutinaController.js');
 
 const app = express();
 const port = 3000;
 app.use(express.json());
-app.use(cors()); // Asegúrate de que esta línea está antes de tus rutas
+app.use(cors()); 
 
 app.use('/', userController);
-app.use('/', ejercicioController); // Usa el nuevo controlador
-
+app.use('/', ejercicioController); 
+app.use('/', rutinaController);
 
 // ...
 dbConnectMySql().then(() => {
