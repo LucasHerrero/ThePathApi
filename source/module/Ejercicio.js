@@ -26,7 +26,8 @@ const Ejercicio = sequelize.define('Ejercicio', {
   instrucciones: {
     type: Sequelize.TEXT,
     allowNull: false
-  }
+  },
+
 }, {
   tableName: 'Ejercicios',
   timestamps: false

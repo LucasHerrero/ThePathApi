@@ -18,6 +18,18 @@ const RutinaEjercicio = sequelize.define('RutinaEjercicio', {
     type: Sequelize.INTEGER,
     allowNull: false
   },
+  reps: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  sets: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  kg: {
+    type: Sequelize.FLOAT,
+    allowNull: false
+  },
 }, {
   tableName: 'RutinaEjercicio',
   timestamps: false
