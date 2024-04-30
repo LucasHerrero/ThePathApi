@@ -28,8 +28,9 @@ router.post("/register", async (req, res) => {
       kg: req.body.kg,
       registration_date: new Date(),
     });
+  
     // Create a JWT token
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.user_id, username: user.username }, secret, { expiresIn: "1h" });
 
     // Send the token to the client
     res.json({ token });
