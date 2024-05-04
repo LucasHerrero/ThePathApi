@@ -73,11 +73,46 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         },
       ],
     });
-    res.json(rutinasEjercicio);
+
+    // Agrupar los resultados por el ID de la rutina
+ const grouped = rutinasEjercicio.reduce((result, item) => {
+  const key = item.Rutina.id;
+  if (!result[key]) {
+    // Copiar la rutina y los ejercicios a un nuevo objeto
+    result[key] = { ...item.dataValues.Rutina.dataValues, Ejercicios: [item.Ejercicio] };
+  } else {
+    // Agregar el ejercicio a la rutina existente
+    result[key].Ejercicios.push(item.Ejercicio);
+  }
+  return result;
+}, {});
+
+    // Convertir el objeto a un array
+    const groupedArray = Object.values(grouped);
+
+    // Mapear el array para incluir solo las propiedades necesarias
+    
+const responseArray = groupedArray.map((item) => ({
+  Rutina: {
+    id: item.id,
+    nombre: item.nombre,
+    cantidadEj: item.cantidadEj,
+    userFk: item.userFk,
+  },
+  Ejercicios: item.Ejercicios.map((ejercicio) => ({
+    id: ejercicio.id,
+    nombre: ejercicio.nombre,
+    musculo: ejercicio.musculo,
+    equipacion: ejercicio.equipacion,
+    dificultad: ejercicio.dificultad,
+    instrucciones: ejercicio.instrucciones,
+  })),
+}));
+
+    res.json(responseArray);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error retrieving routines and exercises for user");
   }
 });
-
 module.exports = router;
