@@ -4,7 +4,8 @@ const Rutina = require("../module/Rutina.js");
 const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
-//Endpoint for Rutina
+
+//TODO: TABLA RUTINAS
 router.get("/rutinas", async (req, res) => {
   try {
     const rutinas = await Rutina.findAll({
@@ -17,18 +18,34 @@ router.get("/rutinas", async (req, res) => {
   }
 });
 
-router.post("/rutina/new", async (req, res) => {
+//TODO: TABLA RUTINAS Y RUTINA EJERCICIO
+router.post("/crearRutina", async (req, res) => {
+  const { nombre, cantidadEj, userFk, ejercicios } = req.body;
+
   try {
-    const { nombre, cantidadEj, userFk } = req.body;
-    const newRutina = await Rutina.create({ nombre, cantidadEj, userFk });
-    res.json(newRutina);
+    // Crear la nueva rutina
+    const nuevaRutina = await Rutina.create({
+      nombre,
+      cantidadEj,
+      userFk,
+    });
+
+    // Crear las relaciones con los ejercicios
+    const relaciones = ejercicios.map((idEjercicio) => ({
+      idRutina: nuevaRutina.id,
+      idEjercicio,
+    }));
+
+    await RutinaEjercicio.bulkCreate(relaciones);
+
+    res.status(201).send("Rutina creada exitosamente");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error creating routine");
+    res.status(500).send("Error al crear la rutina");
   }
 });
 
-//Endpoint for RutinaEjercicio
+//TODO: TABLA RUTINAS EJERCICIO
 router.get("/RutinasEjercicio", async (req, res) => {
   try {
     const rutinasEjercicio = await RutinaEjercicio.findAll({
@@ -75,39 +92,42 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
     });
 
     // Agrupar los resultados por el ID de la rutina
- const grouped = rutinasEjercicio.reduce((result, item) => {
-  const key = item.Rutina.id;
-  if (!result[key]) {
-    // Copiar la rutina y los ejercicios a un nuevo objeto
-    result[key] = { ...item.dataValues.Rutina.dataValues, Ejercicios: [item.Ejercicio] };
-  } else {
-    // Agregar el ejercicio a la rutina existente
-    result[key].Ejercicios.push(item.Ejercicio);
-  }
-  return result;
-}, {});
+    const grouped = rutinasEjercicio.reduce((result, item) => {
+      const key = item.Rutina.id;
+      if (!result[key]) {
+        // Copiar la rutina y los ejercicios a un nuevo objeto
+        result[key] = {
+          ...item.dataValues.Rutina.dataValues,
+          Ejercicios: [item.Ejercicio],
+        };
+      } else {
+        // Agregar el ejercicio a la rutina existente
+        result[key].Ejercicios.push(item.Ejercicio);
+      }
+      return result;
+    }, {});
 
     // Convertir el objeto a un array
     const groupedArray = Object.values(grouped);
 
     // Mapear el array para incluir solo las propiedades necesarias
-    
-const responseArray = groupedArray.map((item) => ({
-  Rutina: {
-    id: item.id,
-    nombre: item.nombre,
-    cantidadEj: item.cantidadEj,
-    userFk: item.userFk,
-  },
-  Ejercicios: item.Ejercicios.map((ejercicio) => ({
-    id: ejercicio.id,
-    nombre: ejercicio.nombre,
-    musculo: ejercicio.musculo,
-    equipacion: ejercicio.equipacion,
-    dificultad: ejercicio.dificultad,
-    instrucciones: ejercicio.instrucciones,
-  })),
-}));
+
+    const responseArray = groupedArray.map((item) => ({
+      Rutina: {
+        id: item.id,
+        nombre: item.nombre,
+        cantidadEj: item.cantidadEj,
+        userFk: item.userFk,
+      },
+      Ejercicios: item.Ejercicios.map((ejercicio) => ({
+        id: ejercicio.id,
+        nombre: ejercicio.nombre,
+        musculo: ejercicio.musculo,
+        equipacion: ejercicio.equipacion,
+        dificultad: ejercicio.dificultad,
+        instrucciones: ejercicio.instrucciones,
+      })),
+    }));
 
     res.json(responseArray);
   } catch (error) {
