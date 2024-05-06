@@ -38,7 +38,7 @@ router.post("/crearRutina", async (req, res) => {
 
     await RutinaEjercicio.bulkCreate(relaciones);
 
-    res.status(201).send("Rutina creada exitosamente");
+    res.status(201).json({ message: "Rutina creada exitosamente" });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al crear la rutina");
