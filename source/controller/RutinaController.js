@@ -118,6 +118,7 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         id: item.id,
         nombre: item.nombre,
         cantidadEj: item.cantidadEj,
+        Dia: item.Dia,
         userFk: item.userFk,
       },
       Ejercicios: item.Ejercicios.map((ejercicio) => ({
