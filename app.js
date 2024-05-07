@@ -18,7 +18,7 @@ app.use('/', rutinaController);
 // ...
 dbConnectMySql().then(() => {
   app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
+    console.log(`App listening at ${port}`);
   });
 }).catch((error) => {
   console.error("Unable to start the server:", error);

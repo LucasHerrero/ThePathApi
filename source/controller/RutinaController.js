@@ -20,13 +20,14 @@ router.get("/rutinas", async (req, res) => {
 
 //TODO: TABLA RUTINAS Y RUTINA EJERCICIO
 router.post("/crearRutina", async (req, res) => {
-  const { nombre, cantidadEj, userFk, ejercicios } = req.body;
+  const { nombre, cantidadEj, userFk, ejercicios,dia } = req.body;
 
   try {
     // Crear la nueva rutina
     const nuevaRutina = await Rutina.create({
       nombre,
       cantidadEj,
+      dia,
       userFk,
     });
 
