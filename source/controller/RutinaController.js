@@ -5,6 +5,9 @@ const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
 
+
+
+
 //TODO: TABLA RUTINAS
 router.get("/rutinas", async (req, res) => {
   try {
@@ -17,6 +20,28 @@ router.get("/rutinas", async (req, res) => {
     res.status(500).send("Error retrieving routines");
   }
 });
+
+router.put("/rutinas/:id", async (req, res) => {
+  const { id } = req.params;
+  const { Dia } = req.body;
+
+  try {
+    const rutina = await Rutina.findByPk(id);
+
+    if (!rutina) {
+      return res.status(404).send("Rutina no encontrada");
+    }
+
+    rutina.Dia = Dia;
+    await rutina.save();
+
+    res.json({ message: "Rutina actualizada exitosamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al actualizar la rutina");
+  }
+});
+
 
 //TODO: TABLA RUTINAS Y RUTINA EJERCICIO
 router.post("/crearRutina", async (req, res) => {
@@ -130,7 +155,7 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         instrucciones: ejercicio.instrucciones,
       })),
     }));
-
+   
     res.json(responseArray);
   } catch (error) {
     console.error(error);
