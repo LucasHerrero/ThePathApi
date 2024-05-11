@@ -45,9 +45,15 @@ router.put("/rutinas/:id", async (req, res) => {
 
 //TODO: TABLA RUTINAS Y RUTINA EJERCICIO
 router.post("/crearRutina", async (req, res) => {
-  const { nombre, cantidadEj,Dia, userFk, ejercicios } = req.body;
+  const { nombre, cantidadEj, Dia, userFk, ejercicios } = req.body;
 
   try {
+    // Comprobar si ya existe una rutina para el usuario y el día especificados
+    const existingRutina = await Rutina.findOne({ where: { Dia, userFk } });
+    if (existingRutina) {
+      return res.status(400).send("No puedes crear 2 rutinas con el mismo dia");
+    }
+
     // Crear la nueva rutina
     const nuevaRutina = await Rutina.create({
       nombre,
