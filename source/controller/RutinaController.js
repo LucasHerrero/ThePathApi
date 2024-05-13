@@ -6,23 +6,86 @@ const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
 const { Op } = require('sequelize');
 
-router.get('/rutinas/search', async (req, res) => {
+
+router.get("/RutinasEjercicio/search", async (req, res) => {
   try {
-    const { nombre, Dia } = req.query;
-    const rutinas = await Rutina.findAll({
-      where: {
-        ...(nombre ? { nombre: { [Op.like]: '%' + nombre + '%' } } : {}),
-        ...(Dia ? { Dia: { [Op.like]: '%' + Dia + '%' } } : {}),
-      },
-      include: [User],
+    const { userId, nombre, Dia } = req.query;
+
+    if (!userId) {
+      return res.status(400).send("El parámetro userId es requerido");
+    }
+
+    const whereClause = { userFk: userId };
+    if (nombre) {
+      whereClause.nombre = { [Op.like]: '%' + nombre + '%' };
+    }
+    if (Dia) {
+      whereClause.Dia = { [Op.like]: '%' + Dia + '%' };
+    }
+
+    const rutinasEjercicio = await RutinaEjercicio.findAll({
+      include: [
+        {
+          model: Rutina,
+          as: "Rutina",
+          where: whereClause,
+          include: {
+            model: User,
+            as: "User",
+          },
+        },
+        {
+          model: Ejercicio,
+          as: "Ejercicio",
+        },
+      ],
     });
-    res.json(rutinas);
+
+    // Agrupar los resultados por el ID de la rutina
+    const grouped = rutinasEjercicio.reduce((result, item) => {
+      const key = item.Rutina.id;
+      if (!result[key]) {
+        // Copiar la rutina y los ejercicios a un nuevo objeto
+        result[key] = {
+          ...item.dataValues.Rutina.dataValues,
+          Ejercicios: [item.Ejercicio],
+        };
+      } else {
+        // Agregar el ejercicio a la rutina existente
+        result[key].Ejercicios.push(item.Ejercicio);
+      }
+      return result;
+    }, {});
+
+    // Convertir el objeto a un array
+    const groupedArray = Object.values(grouped);
+
+    // Mapear el array para incluir solo las propiedades necesarias
+
+    const responseArray = groupedArray.map((item) => ({
+      Rutina: {
+        id: item.id,
+        nombre: item.nombre,
+        cantidadEj: item.cantidadEj,
+        Dia: item.Dia,
+        userFk: item.userFk,
+      },
+      Ejercicios: item.Ejercicios.map((ejercicio) => ({
+        id: ejercicio.id,
+        nombre: ejercicio.nombre,
+        musculo: ejercicio.musculo,
+        equipacion: ejercicio.equipacion,
+        dificultad: ejercicio.dificultad,
+        instrucciones: ejercicio.instrucciones,
+      })),
+    }));
+   
+    res.json(responseArray);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error retrieving routines');
+    res.status(500).send("Error retrieving routines and exercises");
   }
 });
-
 
 //TODO: TABLA RUTINAS
 router.get("/rutinas", async (req, res) => {
