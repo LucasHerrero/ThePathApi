@@ -4,8 +4,24 @@ const Rutina = require("../module/Rutina.js");
 const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
+const { Op } = require('sequelize');
 
-
+router.get('/rutinas/search', async (req, res) => {
+  try {
+    const { nombre, Dia } = req.query;
+    const rutinas = await Rutina.findAll({
+      where: {
+        ...(nombre ? { nombre: { [Op.like]: '%' + nombre + '%' } } : {}),
+        ...(Dia ? { Dia: { [Op.like]: '%' + Dia + '%' } } : {}),
+      },
+      include: [User],
+    });
+    res.json(rutinas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error retrieving routines');
+  }
+});
 
 
 //TODO: TABLA RUTINAS
