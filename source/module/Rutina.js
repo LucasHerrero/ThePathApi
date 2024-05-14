@@ -30,7 +30,8 @@ const Rutina = sequelize.define(
         "Jueves",
         "Viernes",
         "Sabado",
-        "Domingo"
+        "Domingo",
+        ""
       ),
     },
   },
