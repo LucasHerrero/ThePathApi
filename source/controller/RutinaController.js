@@ -181,9 +181,11 @@ router.get("/RutinasEjercicio", async (req, res) => {
     res.status(500).send("Error retrieving routines and exercises");
   }
 });
+
 router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
+
     const rutinasEjercicio = await RutinaEjercicio.findAll({
       include: [
         {
@@ -209,11 +211,11 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         // Copiar la rutina y los ejercicios a un nuevo objeto
         result[key] = {
           ...item.dataValues.Rutina.dataValues,
-          Ejercicios: [item.Ejercicio],
+          Ejercicios: [{...item.Ejercicio.dataValues, reps: item.reps, sets: item.sets, kg: item.kg}],
         };
       } else {
         // Agregar el ejercicio a la rutina existente
-        result[key].Ejercicios.push(item.Ejercicio);
+        result[key].Ejercicios.push({...item.Ejercicio.dataValues, reps: item.reps, sets: item.sets, kg: item.kg});
       }
       return result;
     }, {});
@@ -222,7 +224,6 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
     const groupedArray = Object.values(grouped);
 
     // Mapear el array para incluir solo las propiedades necesarias
-
     const responseArray = groupedArray.map((item) => ({
       Rutina: {
         id: item.id,
@@ -238,9 +239,12 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         equipacion: ejercicio.equipacion,
         dificultad: ejercicio.dificultad,
         instrucciones: ejercicio.instrucciones,
+        reps: ejercicio.reps,
+        sets: ejercicio.sets,
+        kg: ejercicio.kg,
       })),
     }));
-   
+
     res.json(responseArray);
   } catch (error) {
     console.error(error);
