@@ -30,5 +30,8 @@
     "@babel/preset-env": "^7.24.4",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0"
+  },
+  "eslintConfig": {
+    "extends": "standard"
   }
 }

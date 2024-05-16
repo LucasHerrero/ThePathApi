@@ -4,7 +4,7 @@ const Rutina = require("../module/Rutina.js");
 const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 
 router.get("/RutinasEjercicio/search", async (req, res) => {
@@ -87,7 +87,7 @@ router.get("/RutinasEjercicio/search", async (req, res) => {
   }
 });
 
-//TODO: TABLA RUTINAS
+
 router.get("/rutinas", async (req, res) => {
   try {
     const rutinas = await Rutina.findAll({
@@ -99,6 +99,52 @@ router.get("/rutinas", async (req, res) => {
     res.status(500).send("Error retrieving routines");
   }
 });
+
+//TODO: TABLA RUTINAS
+router.put("/rutinaEjercicioKg/:userId", async (req, res) => {
+  
+  try {
+    const { userId } = req.params;
+    const {idRutina, idEjercicio, kg , sets, reps } = req.body;
+
+    const rutinasEjercicio = await RutinaEjercicio.findAll({
+      where: { idRutina },
+      include: [
+        {
+          model: Rutina,
+          as: "Rutina",
+          where: { userFk: userId},
+          include: {
+            model: User,
+            as: "User",
+          },
+        },
+        {
+          model: Ejercicio,
+          as: "Ejercicio",
+          where : { id: idEjercicio }
+        },
+      ],
+    });
+    
+    rutinasEjercicio.forEach(async (rutinaEjercicio) => {
+      rutinaEjercicio.kg = kg;
+      rutinaEjercicio.sets = sets;
+      rutinaEjercicio.reps = reps;
+      await rutinaEjercicio.save();
+    });
+
+
+    res.json(rutinasEjercicio);
+    console.log(idRutina, kg, sets, reps);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error retrieving routines and exercises for user");
+  }
+
+});
+//TODO: TABLA ARRIBA
+
 
 router.put("/rutinas/:id", async (req, res) => {
   const { id } = req.params;
@@ -225,6 +271,7 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
 
     // Mapear el array para incluir solo las propiedades necesarias
     const responseArray = groupedArray.map((item) => ({
+  
       Rutina: {
         id: item.id,
         nombre: item.nombre,
