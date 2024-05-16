@@ -298,4 +298,28 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
     res.status(500).send("Error retrieving routines and exercises for user");
   }
 });
+
+router.delete("/rutinas/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Buscar la rutina
+    const rutina = await Rutina.findByPk(id);
+
+    if (!rutina) {
+      return res.status(404).send("Rutina no encontrada");
+    }
+
+    // Eliminar las relaciones con los ejercicios
+    await RutinaEjercicio.destroy({ where: { idRutina: id } });
+
+    // Eliminar la rutina
+    await rutina.destroy();
+
+    res.json({ message: "Rutina eliminada exitosamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al eliminar la rutina");
+  }
+});
 module.exports = router;
