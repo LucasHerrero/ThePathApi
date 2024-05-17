@@ -377,6 +377,7 @@ router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
         if (rutina.cantidadEj > 0) {
           if (rutina.cantidadEj == 1) {
             rutina.destroy();
+            res.json({ message: "Ejercicio y rutina eliminados exitosamente." });
           } else {
             rutina.cantidadEj = rutina.cantidadEj - 1;
             await rutina.save();
