@@ -362,8 +362,7 @@ router.post("/addEjercicio/:idRutina", async (req, res) => {
   }
 });
 router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
-  const { idRutina,idEjercicio } = req.params;
-  
+  const { idRutina, idEjercicio } = req.params;
 
   try {
     const existingEjercicio = await RutinaEjercicio.findOne({
@@ -371,18 +370,24 @@ router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
     });
     if (existingEjercicio) {
       existingEjercicio.destroy();
-    
-    const rutina = await Rutina.findByPk(idRutina);
 
-    if (rutina) {
-      if (rutina.cantidadEj > 0) {
-        rutina.cantidadEj = rutina.cantidadEj - 1;
-        await rutina.save();
+      const rutina = await Rutina.findByPk(idRutina);
+
+      if (rutina) {
+        if (rutina.cantidadEj > 0) {
+          if (rutina.cantidadEj == 1) {
+            rutina.destroy();
+          } else {
+            rutina.cantidadEj = rutina.cantidadEj - 1;
+            await rutina.save();
+          }
+        }
       }
+    } else {
+      return res
+        .status(400)
+        .send("No puedes eliminar un ejercicio que no existe");
     }
-  }else {
-    return res.status(400).send("No puedes eliminar un ejercicio que no existe");
-  }
     res.json({ message: "Ejercicio eliminado exitosamente." });
   } catch (error) {
     console.error(error);
