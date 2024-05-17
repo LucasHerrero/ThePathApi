@@ -4,8 +4,7 @@ const Rutina = require("../module/Rutina.js");
 const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
-const { Op, where } = require('sequelize');
-
+const { Op, where } = require("sequelize");
 
 router.get("/RutinasEjercicio/search", async (req, res) => {
   try {
@@ -17,10 +16,10 @@ router.get("/RutinasEjercicio/search", async (req, res) => {
 
     const whereClause = { userFk: userId };
     if (nombre) {
-      whereClause.nombre = { [Op.like]: '%' + nombre + '%' };
+      whereClause.nombre = { [Op.like]: "%" + nombre + "%" };
     }
     if (Dia) {
-      whereClause.Dia = { [Op.like]: '%' + Dia + '%' };
+      whereClause.Dia = { [Op.like]: "%" + Dia + "%" };
     }
 
     const rutinasEjercicio = await RutinaEjercicio.findAll({
@@ -79,14 +78,13 @@ router.get("/RutinasEjercicio/search", async (req, res) => {
         instrucciones: ejercicio.instrucciones,
       })),
     }));
-   
+
     res.json(responseArray);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error retrieving routines and exercises");
   }
 });
-
 
 router.get("/rutinas", async (req, res) => {
   try {
@@ -102,10 +100,9 @@ router.get("/rutinas", async (req, res) => {
 
 //TODO: TABLA RUTINAS
 router.put("/rutinaEjercicioKg/:userId", async (req, res) => {
-  
   try {
     const { userId } = req.params;
-    const {idRutina, idEjercicio, kg , sets, reps } = req.body;
+    const { idRutina, idEjercicio, kg, sets, reps } = req.body;
 
     const rutinasEjercicio = await RutinaEjercicio.findAll({
       where: { idRutina },
@@ -113,7 +110,7 @@ router.put("/rutinaEjercicioKg/:userId", async (req, res) => {
         {
           model: Rutina,
           as: "Rutina",
-          where: { userFk: userId},
+          where: { userFk: userId },
           include: {
             model: User,
             as: "User",
@@ -122,11 +119,11 @@ router.put("/rutinaEjercicioKg/:userId", async (req, res) => {
         {
           model: Ejercicio,
           as: "Ejercicio",
-          where : { id: idEjercicio }
+          where: { id: idEjercicio },
         },
       ],
     });
-    
+
     rutinasEjercicio.forEach(async (rutinaEjercicio) => {
       rutinaEjercicio.kg = kg;
       rutinaEjercicio.sets = sets;
@@ -134,17 +131,14 @@ router.put("/rutinaEjercicioKg/:userId", async (req, res) => {
       await rutinaEjercicio.save();
     });
 
-
     res.json(rutinasEjercicio);
     console.log(idRutina, kg, sets, reps);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error retrieving routines and exercises for user");
   }
-
 });
 //TODO: TABLA ARRIBA
-
 
 router.put("/rutinas/:id", async (req, res) => {
   const { id } = req.params;
@@ -166,7 +160,6 @@ router.put("/rutinas/:id", async (req, res) => {
     res.status(500).send("Error al actualizar la rutina");
   }
 });
-
 
 //TODO: TABLA RUTINAS Y RUTINA EJERCICIO
 router.post("/crearRutina", async (req, res) => {
@@ -257,11 +250,23 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
         // Copiar la rutina y los ejercicios a un nuevo objeto
         result[key] = {
           ...item.dataValues.Rutina.dataValues,
-          Ejercicios: [{...item.Ejercicio.dataValues, reps: item.reps, sets: item.sets, kg: item.kg}],
+          Ejercicios: [
+            {
+              ...item.Ejercicio.dataValues,
+              reps: item.reps,
+              sets: item.sets,
+              kg: item.kg,
+            },
+          ],
         };
       } else {
         // Agregar el ejercicio a la rutina existente
-        result[key].Ejercicios.push({...item.Ejercicio.dataValues, reps: item.reps, sets: item.sets, kg: item.kg});
+        result[key].Ejercicios.push({
+          ...item.Ejercicio.dataValues,
+          reps: item.reps,
+          sets: item.sets,
+          kg: item.kg,
+        });
       }
       return result;
     }, {});
@@ -271,7 +276,6 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
 
     // Mapear el array para incluir solo las propiedades necesarias
     const responseArray = groupedArray.map((item) => ({
-  
       Rutina: {
         id: item.id,
         nombre: item.nombre,
@@ -320,6 +324,41 @@ router.delete("/rutinas/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al eliminar la rutina");
+  }
+});
+
+router.post("/addEjercicio/:idRutina", async (req, res) => {
+  const { idRutina } = req.params;
+  const { idEjercicio } = req.body;
+
+  try {
+    const existingEjercicio = await RutinaEjercicio.findOne({
+      where: { idRutina, idEjercicio },
+    });
+    if (existingEjercicio) {
+      return res.status(400).send("No puedes añadir un ejercicio ya existente");
+    }
+    const rutina = await Rutina.findByPk(idRutina);
+
+    if (rutina) {
+      if (rutina.cantidadEj >= 6) {
+        return res.status(400).send("No puedes añadir más de 6 ejercicios");
+      }
+      rutina.cantidadEj = rutina.cantidadEj + 1;
+      await rutina.save();
+    }
+    const rutinaEjercicio = await RutinaEjercicio.create({
+      idRutina,
+      idEjercicio,
+      reps: 0,
+      sets: 0,
+      kg: 0,
+    });
+
+    res.json({ message: "Ejercicio añadido exitosamente." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al añadir el ejercicio a la rutina.");
   }
 });
 module.exports = router;
