@@ -361,9 +361,9 @@ router.post("/addEjercicio/:idRutina", async (req, res) => {
     res.status(500).send("Error al añadir el ejercicio a la rutina.");
   }
 });
-router.delete("/deleteEjercicio/:idRutina", async (req, res) => {
-  const { idRutina } = req.params;
-  const { idEjercicio } = req.body;
+router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
+  const { idRutina,idEjercicio } = req.params;
+  
 
   try {
     const existingEjercicio = await RutinaEjercicio.findOne({
