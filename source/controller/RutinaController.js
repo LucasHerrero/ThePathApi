@@ -361,4 +361,32 @@ router.post("/addEjercicio/:idRutina", async (req, res) => {
     res.status(500).send("Error al añadir el ejercicio a la rutina.");
   }
 });
+router.delete("/deleteEjercicio/:idRutina", async (req, res) => {
+  const { idRutina } = req.params;
+  const { idEjercicio } = req.body;
+
+  try {
+    const existingEjercicio = await RutinaEjercicio.findOne({
+      where: { idRutina, idEjercicio },
+    });
+    if (existingEjercicio) {
+      existingEjercicio.destroy();
+    
+    const rutina = await Rutina.findByPk(idRutina);
+
+    if (rutina) {
+      if (rutina.cantidadEj > 0) {
+        rutina.cantidadEj = rutina.cantidadEj - 1;
+        await rutina.save();
+      }
+    }
+  }else {
+    return res.status(400).send("No puedes eliminar un ejercicio que no existe");
+  }
+    res.json({ message: "Ejercicio eliminado exitosamente." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al elimar el ejercicio a la rutina.");
+  }
+});
 module.exports = router;
