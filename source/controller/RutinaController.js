@@ -376,11 +376,13 @@ router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
       if (rutina) {
         if (rutina.cantidadEj > 0) {
           if (rutina.cantidadEj == 1) {
+            console.log(rutina);
             rutina.destroy();
-            res.json({ message: "Ejercicio y rutina eliminados exitosamente." });
+            res.json({ message: "Ejercicio y rutina elimnados exitosamente." });
           } else {
             rutina.cantidadEj = rutina.cantidadEj - 1;
             await rutina.save();
+            res.json({ message: "Ejercicio eliminado exitosamente." });
           }
         }
       }
@@ -389,7 +391,6 @@ router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
         .status(400)
         .send("No puedes eliminar un ejercicio que no existe");
     }
-    res.json({ message: "Ejercicio eliminado exitosamente." });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al elimar el ejercicio a la rutina.");
