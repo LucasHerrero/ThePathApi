@@ -326,39 +326,45 @@ router.delete("/rutinas/:id", async (req, res) => {
     res.status(500).send("Error al eliminar la rutina");
   }
 });
-
 router.post("/addEjercicio/:idRutina", async (req, res) => {
   const { idRutina } = req.params;
-  const { idEjercicio } = req.body;
+  const { idEjercicios } = req.body; // Ahora es un array de IDs
 
   try {
-    const existingEjercicio = await RutinaEjercicio.findOne({
-      where: { idRutina, idEjercicio },
-    });
-    if (existingEjercicio) {
-      return res.status(400).send("No puedes añadir un ejercicio ya existente");
+    // Primero, verifica si todos los ejercicios son únicos
+    for (const idEjercicio of idEjercicios) {
+      const existingEjercicio = await RutinaEjercicio.findOne({
+        where: { idRutina, idEjercicio },
+      });
+      if (existingEjercicio) {
+        return res.status(400).send("No puedes añadir un ejercicio ya existente");
+      }
     }
-    const rutina = await Rutina.findByPk(idRutina);
 
-    if (rutina) {
-     
-      rutina.cantidadEj = rutina.cantidadEj + 1;
-      await rutina.save();
+    // Si todos los ejercicios son únicos, procede con la creación
+    for (const idEjercicio of idEjercicios) {
+      const rutina = await Rutina.findByPk(idRutina);
+
+      if (rutina) {
+        rutina.cantidadEj = rutina.cantidadEj + 1;
+        await rutina.save();
+      }
+      const rutinaEjercicio = await RutinaEjercicio.create({
+        idRutina,
+        idEjercicio,
+        reps: 0,
+        sets: 0,
+        kg: 0,
+      });
     }
-    const rutinaEjercicio = await RutinaEjercicio.create({
-      idRutina,
-      idEjercicio,
-      reps: 0,
-      sets: 0,
-      kg: 0,
-    });
 
-    res.json({ message: "Ejercicio añadido exitosamente." });
+    res.json({ message: "Ejercicios añadidos exitosamente." });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error al añadir el ejercicio a la rutina.");
+    res.status(500).send("Error al añadir los ejercicios a la rutina.");
   }
 });
+
 router.delete("/deleteEjercicio/:idRutina/:idEjercicio", async (req, res) => {
   const { idRutina, idEjercicio } = req.params;
 
