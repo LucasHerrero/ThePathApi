@@ -341,9 +341,7 @@ router.post("/addEjercicio/:idRutina", async (req, res) => {
     const rutina = await Rutina.findByPk(idRutina);
 
     if (rutina) {
-      if (rutina.cantidadEj >= 6) {
-        return res.status(400).send("No puedes añadir más de 6 ejercicios");
-      }
+     
       rutina.cantidadEj = rutina.cantidadEj + 1;
       await rutina.save();
     }
