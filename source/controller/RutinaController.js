@@ -6,6 +6,29 @@ const User = require("../module/user.js");
 const Ejercicio = require("../module/Ejercicio.js");
 const { Op, where } = require("sequelize");
 
+
+router.get("/rutina/day/:userId/:day", async (req, res) => {
+try {
+  const { userId, day } = req.params;
+
+  const rutinas = await Rutina.findAll({
+    where: { userFk: userId, Dia: day },
+    include: [
+      {
+        model: User,
+        as: "User",
+      },
+    ],
+  })
+  res.json(rutinas);
+}catch{
+res.json({message: "No se encontraron rutinas"});
+}
+
+
+
+});
+
 router.get("/RutinasEjercicio/search", async (req, res) => {
   try {
     const { userId, nombre, Dia } = req.query;
