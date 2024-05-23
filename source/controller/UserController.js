@@ -6,6 +6,25 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const secret = process.env.JWT_SECRET;
 
+router.get("/userById/:userid", async (req, res) => {
+  try {
+    const userid = req.params;
+
+    const user = await User.findOne({
+      where: { user_id: userid.userid },
+    });
+    if (user === null) {
+      res.status(404).send("Usuario no encontrado");
+    }else{
+      res.json(user);
+    }
+
+    
+  } catch (error) {
+    res.status(500).send("Error retrieving user");
+  }
+});
+
 router.post("/register", async (req, res) => {
   console.log(req.body);
 
