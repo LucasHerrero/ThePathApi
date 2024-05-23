@@ -39,7 +39,7 @@ router.put("/userUpdate", async (req, res) => {
       user.height = height;
       user.kg = kg;
       await user.save();
-      res.json(user);
+     res.json({message: "Usuario actualizado con exito"});
     }
 
   } catch (error) {
