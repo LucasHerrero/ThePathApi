@@ -6,6 +6,39 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const secret = process.env.JWT_SECRET;
 
+router.put("/userUpdate", async (req, res) => {
+  try {
+    const {
+      userId, 
+      username,
+      email,
+      birthday,
+      height,
+      kg,
+  
+    } = req.body;
+    const user = await User.findOne({
+      where: { user_id: userId },
+    });
+
+    if (user === null) {
+      res.status(404).send("Usuario no encontrado");
+    }else {
+      user.username = username;
+      user.email = email;
+      user.birthday = birthday;
+      user.height = height;
+      user.kg = kg;
+      await user.save();
+      res.json(user);
+    }
+
+  } catch (error) {
+    res.status(500).send("Error updating user");
+  }
+
+  });
+
 router.get("/userById/:userid", async (req, res) => {
   try {
     const userid = req.params;
