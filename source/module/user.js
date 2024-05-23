@@ -33,6 +33,10 @@ const User = sequelize.define('User', {
     type: Sequelize.DataTypes.FLOAT,
     allowNull: true
   },
+  imagen: {
+    type: Sequelize.DataTypes.STRING,
+    allowNull: true
+  },
   registration_date: {
     type: Sequelize.DataTypes.DATE,
     allowNull: true
