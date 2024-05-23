@@ -15,15 +15,24 @@ router.put("/userUpdate", async (req, res) => {
       birthday,
       height,
       kg,
-  
     } = req.body;
+
     const user = await User.findOne({
       where: { user_id: userId },
     });
 
     if (user === null) {
       res.status(404).send("Usuario no encontrado");
-    }else {
+    } else {
+      // Check if the email already exists and belongs to a different user
+      const existingUser = await User.findOne({
+        where: { email: email },
+      });
+
+      if (existingUser && existingUser.user_id !== userId) {
+        return res.status(400).send("Ya existe un usuario con ese email");
+      }
+
       user.username = username;
       user.email = email;
       user.birthday = birthday;
@@ -36,9 +45,7 @@ router.put("/userUpdate", async (req, res) => {
   } catch (error) {
     res.status(500).send("Error updating user");
   }
-
-  });
-
+});
 router.get("/userById/:userid", async (req, res) => {
   try {
     const userid = req.params;
