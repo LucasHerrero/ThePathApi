@@ -12,6 +12,7 @@ router.get("/userById/:userid", async (req, res) => {
 
     const user = await User.findOne({
       where: { user_id: userid.userid },
+      attributes: { exclude: ['password'] }, 
     });
     if (user === null) {
       res.status(404).send("Usuario no encontrado");
