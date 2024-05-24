@@ -66,6 +66,28 @@ router.get("/userById/:userid", async (req, res) => {
   }
 });
 
+router.put("/userPasswordUpdate/:userId", async (req, res) => {
+  try {
+    const userId = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      where: { user_id: userId.userId },
+    });
+
+    if (user === null) {
+      res.status(404).send("Usuario no encontrado");
+    }else {
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      await user.save();
+      res.json({message: "Contraseña actualizada con exito"});
+    }
+  }catch (error) {
+    res.status(500).send("Error updating user password");
+  }
+});
 router.post("/register", async (req, res) => {
   console.log(req.body);
 
