@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../module/user.js");
+const Rutina = require("../module/Rutina.js");
+const RutinaEjercicio = require("../module/RutinaEjercicio.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -8,14 +10,7 @@ const secret = process.env.JWT_SECRET;
 
 router.put("/userUpdate", async (req, res) => {
   try {
-    const {
-      userId, 
-      username,
-      email,
-      birthday,
-      height,
-      kg,
-    } = req.body;
+    const { userId, username, email, birthday, height, kg } = req.body;
 
     const user = await User.findOne({
       where: { user_id: userId },
@@ -39,9 +34,8 @@ router.put("/userUpdate", async (req, res) => {
       user.height = height;
       user.kg = kg;
       await user.save();
-     res.json({message: "Usuario actualizado con exito"});
+      res.json({ message: "Usuario actualizado con exito" });
     }
-
   } catch (error) {
     res.status(500).send("Error updating user");
   }
@@ -52,15 +46,13 @@ router.get("/userById/:userid", async (req, res) => {
 
     const user = await User.findOne({
       where: { user_id: userid.userid },
-      attributes: { exclude: ['password'] }, 
+      attributes: { exclude: ["password"] },
     });
     if (user === null) {
       res.status(404).send("Usuario no encontrado");
-    }else{
+    } else {
       res.json(user);
     }
-
-    
   } catch (error) {
     res.status(500).send("Error retrieving user");
   }
@@ -77,17 +69,17 @@ router.put("/userPasswordUpdate/:userId", async (req, res) => {
 
     if (user === null) {
       res.status(404).send("Usuario no encontrado");
-    }else {
+    } else {
       if (password.length > 7) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user.password = hashedPassword;
-      await user.save();
-      res.json({message: "Contraseña actualizada con exito"});
-      }else{
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+        res.json({ message: "Contraseña actualizada con exito" });
+      } else {
         res.status(400).send("La contraseña debe tener al menos 8 caracteres");
       }
     }
-  }catch (error) {
+  } catch (error) {
     res.status(500).send("Error al actualizar la contraseña");
   }
 });
@@ -177,4 +169,34 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.delete("/deleteUser/:userId", async (req, res) => {
+  try {
+    const userId = req.params;
+    const user = await User.findOne({
+      where: { user_id: userId.userId },
+    });
+
+    if (user === null) {
+      res.status(404).send("Usuario no encontrado");
+    } else {
+      const rutina = await Rutina.findAll({
+        where: { userFk: userId.userId },
+      });
+      if (rutina !== null) {
+        for (let i = 0; i < rutina.length; i++) {
+          await RutinaEjercicio.destroy({
+            where: { idRutina: rutina[i].id },
+          });
+        }
+        for (let i = 0; i < rutina.length; i++) {
+          await rutina[i].destroy();
+        }
+      }
+      await user.destroy();
+      res.json({ message: "Usuario eliminado con exito" });
+    }
+  } catch (error) {
+    res.status(500).send("Error al eliminar usuario");
+  }
+});
 module.exports = router;
