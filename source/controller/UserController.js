@@ -88,7 +88,7 @@ router.put("/userPasswordUpdate/:userId", async (req, res) => {
       }
     }
   }catch (error) {
-    res.status(500).send("Error updating user password");
+    res.status(500).send("Error al actualizar la contraseña");
   }
 });
 router.post("/register", async (req, res) => {
