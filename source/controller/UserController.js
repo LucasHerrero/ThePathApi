@@ -199,4 +199,44 @@ router.delete("/deleteUser/:userId", async (req, res) => {
     res.status(500).send("Error al eliminar usuario");
   }
 });
+
+router.get("/imcCalculation/:userId", async (req, res) => {
+  try {
+    const userId = req.params;
+
+    const user = await User.findOne({
+      where: { user_id: userId.userId },
+    });
+    if (user === null) {
+      res.status(404).send("Usuario no encontrado");
+    } else {
+      if (user.kg === null || user.height === null) {
+        res.json({
+          imc: "Necesitamos los datos de altura y peso.",
+          imcInfo: "",
+        });
+      } else {
+        const imc = (user.kg / (user.height / 100) ** 2).toFixed(2);
+        let imcInfo = "";
+        if (imc < 18.5) {
+          imcInfo = "Bajo peso";
+        } else if (imc >= 18.5 && imc < 24.9) {
+          imcInfo = "Peso normal";
+        } else if (imc >= 25 && imc < 29.9) {
+          imcInfo = "Sobrepeso";
+        } else if (imc >= 30 && imc < 34.9) {
+          imcInfo = "Obesidad tipo 1";
+        } else if (imc >= 35 && imc < 39.9) {
+          imcInfo = "Obesidad tipo 2";
+        } else if (imc >= 40) {
+          imcInfo = "Obesidad tipo 3";
+        }
+        console.log("Imc", imcInfo);
+        res.json({ imc, imcInfo });
+      }
+    }
+  } catch {
+    res.status(500).send("Error al calcular IMC");
+  }
+});
 module.exports = router;
