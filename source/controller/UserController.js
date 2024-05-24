@@ -78,11 +78,14 @@ router.put("/userPasswordUpdate/:userId", async (req, res) => {
     if (user === null) {
       res.status(404).send("Usuario no encontrado");
     }else {
-      // Hash the password
+      if (password.length > 7) {
       const hashedPassword = await bcrypt.hash(password, 10);
       user.password = hashedPassword;
       await user.save();
       res.json({message: "Contraseña actualizada con exito"});
+      }else{
+        res.status(400).send("La contraseña debe tener al menos 8 caracteres");
+      }
     }
   }catch (error) {
     res.status(500).send("Error updating user password");
