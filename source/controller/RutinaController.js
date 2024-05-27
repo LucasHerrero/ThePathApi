@@ -240,7 +240,7 @@ router.get("/RutinasEjercicio", async (req, res) => {
     res.json(rutinasEjercicio);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error retrieving routines and exercises");
+    res.status(500).send("Error al obtener rutinas y ejercicios");
   }
 });
 
@@ -322,7 +322,7 @@ router.get("/RutinasEjercicio/user/:userId", async (req, res) => {
     res.json(responseArray);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error retrieving routines and exercises for user");
+    res.status(500).send("Error al obtener rutinas y ejercicios para el usuario");
   }
 });
 

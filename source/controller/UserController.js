@@ -37,7 +37,7 @@ router.put("/userUpdate", async (req, res) => {
       res.json({ message: "Usuario actualizado con exito" });
     }
   } catch (error) {
-    res.status(500).send("Error updating user");
+    res.status(500).send("Error actualizando usuario");
   }
 });
 router.get("/userById/:userid", async (req, res) => {
@@ -54,7 +54,7 @@ router.get("/userById/:userid", async (req, res) => {
       res.json(user);
     }
   } catch (error) {
-    res.status(500).send("Error retrieving user");
+    res.status(500).send("Error al obtener usuario");
   }
 });
 
@@ -119,7 +119,7 @@ router.post("/register", async (req, res) => {
     res.json({ token });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error registering user");
+    res.status(500).send("Error al encontra usuario");
   }
 });
 
@@ -129,7 +129,7 @@ router.get("/users", async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error retrieving users");
+    res.status(500).send("Error al encontra usuario");
   }
 });
 
@@ -140,7 +140,7 @@ router.post("/login", async (req, res) => {
 
     // If the user was not found, send an error
     if (!user) {
-      return res.status(400).send("The email does not exist");
+      return res.status(400).send("Email no encontrado");
     }
 
     // Check if the provided password matches the hashed password in the database
@@ -151,7 +151,7 @@ router.post("/login", async (req, res) => {
 
     // If the password is not valid, send an error
     if (!validPassword) {
-      return res.status(400).send("Invalid password");
+      return res.status(400).send("Contraseña incorrecta");
     }
 
     // If the email and password are valid, create a JWT token
@@ -165,7 +165,7 @@ router.post("/login", async (req, res) => {
     res.json({ token });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error logging in");
+    res.status(500).send("Error al iniciar sesion");
   }
 });
 
