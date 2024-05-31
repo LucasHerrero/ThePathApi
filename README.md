@@ -31,8 +31,4 @@ npm run start
 - Express
 - Sequelize
 
-· Angular
-
-· Ionic
-
 ### Este proyecto contiuna en desarrollo 🔨🔧
